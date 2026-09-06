@@ -66,7 +66,7 @@ public class BuilderProcessor extends AbstractProcessor {
             // Validate: only one per class
             long count = enclosingClass.getEnclosedElements().stream()
                 .filter(e -> e instanceof ExecutableElement)
-                .filter(e -> ((ExecutableElement) e).getSimpleName().toString().equals("<init>"))
+                .filter(e -> e.getSimpleName().toString().equals("<init>"))
                 .filter(e -> e.getAnnotation(GenerateBuilder.class) != null)
                 .count();
             if (count > 1) {

@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.robinloom</groupId>
-    <artifactId>classcraft</artifactId>
+    <artifactId>classcraft-parent</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>ClassCraft</name>
-    <description>Zero-boilerplate Design Patterns for Java</description>
+    <name>ClassCraft - Parent POM</name>
+    <description>Parent POM for ClassCraft project</description>
     <url>https://github.com/robinloom/classcraft</url>
     <inceptionYear>2026</inceptionYear>
 
@@ -52,7 +52,7 @@
             </dependency>
             <dependency>
                 <groupId>com.robinloom</groupId>
-                <artifactId>classcraft-processor</artifactId>
+                <artifactId>classcraft</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -78,7 +78,7 @@
 
     <modules>
         <module>classcraft-annotations</module>
-        <module>classcraft-processor</module>
+        <module>classcraft</module>
         <module>classcraft-example</module>
     </modules>
 

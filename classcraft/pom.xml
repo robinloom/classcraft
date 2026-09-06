@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.robinloom</groupId>
-        <artifactId>classcraft</artifactId>
+        <artifactId>classcraft-parent</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>classcraft-processor</artifactId>
-    <name>ClassCraft - Annotation Processor</name>
-    <description>Annotation processor for ClassCraft code generation</description>
+    <artifactId>classcraft</artifactId>
+    <name>ClassCraft</name>
+    <description>Zero-boilerplate Design Patterns for Java</description>
 
     <dependencies>
         <dependency>
