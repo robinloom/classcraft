@@ -38,6 +38,9 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>6.0.3</junit.version>
+        <jspecify.version>1.0.0</jspecify.version>
+        <javapoet.version>1.13.0</javapoet.version>
     </properties>
 
     <dependencyManagement>
@@ -52,12 +55,31 @@
                 <artifactId>classcraft-processor</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>${jspecify.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup</groupId>
+                <artifactId>javapoet</artifactId>
+                <version>${javapoet.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <modules>
         <module>classcraft-annotations</module>
         <module>classcraft-processor</module>
+        <module>classcraft-example</module>
     </modules>
 
     <build>

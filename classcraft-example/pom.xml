@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.robinloom</groupId>
+        <artifactId>classcraft</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>classcraft-example</artifactId>
+    <name>ClassCraft - Example</name>
+    <description>Example usage of ClassCraft @GenerateBuilder annotation</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.robinloom</groupId>
+            <artifactId>classcraft-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
+                <configuration>
+                    <source>25</source>
+                    <target>25</target>
+                    <encoding>UTF-8</encoding>
+                    <annotationProcessorPaths>
+                        <annotationProcessorPath>
+                            <groupId>com.robinloom</groupId>
+                            <artifactId>classcraft-processor</artifactId>
+                            <version>${project.version}</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>org.jspecify</groupId>
+                            <artifactId>jspecify</artifactId>
+                            <version>1.0.0</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>com.squareup</groupId>
+                            <artifactId>javapoet</artifactId>
+                            <version>1.13.0</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
