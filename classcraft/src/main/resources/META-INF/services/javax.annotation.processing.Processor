@@ -1,1 +1,3 @@
 com.robinloom.classcraft.processor.BuilderProcessor
+com.robinloom.classcraft.processor.DTOProcessor
+com.robinloom.classcraft.processor.MapperProcessor

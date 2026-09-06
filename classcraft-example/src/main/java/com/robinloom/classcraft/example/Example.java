@@ -3,41 +3,51 @@ package com.robinloom.classcraft.example;
 public class Example {
 
     static void main(String[] args) {
-        System.out.println("=== Using @Nullable from JSpecify ===");
+        System.out.println("=== @GenerateBuilder + @GenerateDTO + @GenerateMapper ===\n");
 
-        // Type-safe staged builder pattern with required parameter enforcement
+        // Create entity with builder
         User alice = UserBuilder.builder()
-            .name("Alice")              // Required: NameStage → EmailStage
-            .email("alice@example.com") // Required: EmailStage → BuildStage
-            .phone("555-1234")          // Optional: BuildStage → BuildStage
+            .name("Alice")
+            .email("alice@example.com")
+            .phone("555-1234")
             .build();
 
-        System.out.println("User: " + alice.getName() + " (" + alice.getEmail() + "), phone: " + alice.getPhone());
+        System.out.println("Entity: " + alice);
 
-        System.out.println("\n=== Using @Nullable from ClassCraft ===");
+        // Convert entity → DTO using auto-generated static mapper
+        UserDTO aliceDTO = UserMapper.toUserDTO(alice);
+        System.out.println("DTO:    " + aliceDTO);
 
-        // ClassCraft's own @Optional annotation for projects without external nullability frameworks
+        // Convert DTO → entity
+        User aliceRestored = UserMapper.toUser(aliceDTO);
+        System.out.println("Entity again: " + aliceRestored);
+
+        System.out.println("\n=== Products (Builder + DTO) ===\n");
+
         Product laptop = ProductBuilder.builder()
             .name("ThinkPad X1")
             .price(1299.99)
             .sku("TP-X1-2024")
             .build();
 
-        System.out.println("Product: " + laptop.getName() + " ($" + laptop.getPrice() + "), SKU: " + (laptop.getSku() != null ? laptop.getSku() : "unassigned"));
+        System.out.println(laptop);
 
-        Product generic = ProductBuilder.builder()
-            .name("USB Cable")
-            .price(9.99)
+        System.out.println("\n=== AppConfig: Mutable (no-arg + setters) ===\n");
+
+        AppConfig config = AppConfigBuilder.builder()
+            .appName("MyApp")
+            .version("1.0.0")
+            .environment("production")
             .build();
 
-        System.out.println("Product: " + generic.getName() + " ($" + generic.getPrice() + "), SKU: " + (generic.getSku() != null ? generic.getSku() : "unassigned"));
+        System.out.println("Config: " + config);
 
-        // Without optional phone parameter
-        User bob = UserBuilder.builder()
-            .name("Bob")
-            .email("bob@example.com")
-            .build();
+        // Convert config → DTO using mapper (will use no-arg + setters)
+        AppConfigDTO configDTO = AppConfigMapper.toAppConfigDTO(config);
+        System.out.println("ConfigDTO: " + configDTO);
 
-        System.out.println("User: " + bob.getName() + " (" + bob.getEmail() + "), phone: " + (bob.getPhone() != null ? bob.getPhone() : "n/a"));
+        // Convert back (reverse direction also uses no-arg + setters)
+        AppConfig restored = AppConfigMapper.toAppConfig(configDTO);
+        System.out.println("Restored: " + restored);
     }
 }
