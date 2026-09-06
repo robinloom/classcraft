@@ -29,12 +29,18 @@ public class AppConfig {
         this.environment = environment;
     }
 
+    @SuppressWarnings("unused")
     public String getAppName() { return appName; }
+    @SuppressWarnings("unused")
     public String getVersion() { return version; }
+    @SuppressWarnings("unused")
     public String getEnvironment() { return environment; }
 
+    @SuppressWarnings("unused")
     public void setAppName(String appName) { this.appName = appName; }
+    @SuppressWarnings("unused")
     public void setVersion(String version) { this.version = version; }
+    @SuppressWarnings("unused")
     public void setEnvironment(String environment) { this.environment = environment; }
 
     @Override

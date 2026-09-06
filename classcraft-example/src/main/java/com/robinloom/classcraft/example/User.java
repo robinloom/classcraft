@@ -24,7 +24,10 @@ public class User {
         this.phone = phone;
     }
 
+    @SuppressWarnings("unused")
     public String getName() { return name; }
+    @SuppressWarnings("unused")
     public String getEmail() { return email; }
+    @SuppressWarnings("unused")
     public String getPhone() { return phone; }
 }

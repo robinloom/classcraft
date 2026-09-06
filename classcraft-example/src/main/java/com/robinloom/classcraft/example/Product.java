@@ -15,7 +15,10 @@ public class Product {
         this.sku = sku;
     }
 
+    @SuppressWarnings("unused")
     public String getName() { return name; }
+    @SuppressWarnings("unused")
     public double getPrice() { return price; }
+    @SuppressWarnings("unused")
     public String getSku() { return sku; }
 }
