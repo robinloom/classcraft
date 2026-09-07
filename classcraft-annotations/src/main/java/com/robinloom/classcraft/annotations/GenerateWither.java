@@ -19,4 +19,10 @@ import java.lang.annotation.ElementType;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface GenerateWither {
+
+    /**
+     * Suffix appended to the class name for the generated wither class.
+     * E.g. suffix = "Copier" generates UserCopier instead of UserWither.
+     */
+    String suffix() default "Wither";
 }

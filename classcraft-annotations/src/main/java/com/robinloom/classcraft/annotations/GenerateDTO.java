@@ -22,4 +22,10 @@ public @interface GenerateDTO {
      * Generate a no-arg constructor.
      */
     boolean generateNoArgConstructor() default true;
+
+    /**
+     * Suffix appended to the class name for the generated DTO class.
+     * E.g. suffix = "TO" generates UserTO instead of UserDTO.
+     */
+    String suffix() default "DTO";
 }

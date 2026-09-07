@@ -106,7 +106,8 @@ public class BuilderProcessor extends AbstractProcessor {
             }
         }
 
-        String builderClassName = enclosingClass.getSimpleName() + "Builder";
+        GenerateBuilder annotation = constructor.getAnnotation(GenerateBuilder.class);
+        String builderClassName = enclosingClass.getSimpleName() + annotation.suffix();
         ClassName targetClass = ClassName.get(enclosingClass);
         PackageElement pkg = elements.getPackageOf(enclosingClass);
         String packageName = pkg.getQualifiedName().toString();

@@ -71,6 +71,12 @@ public class WitherProcessor extends AbstractProcessor {
     }
 
     private void generateWither(TypeElement classElement) throws IOException {
+        GenerateWither annotation = classElement.getAnnotation(GenerateWither.class);
+
+        if (annotation == null) {
+            return;
+        }
+
         List<VariableElement> fields = classElement.getEnclosedElements().stream()
             .filter(e -> e.getKind() == ElementKind.FIELD)
             .filter(e -> !e.getModifiers().contains(Modifier.STATIC))
@@ -105,7 +111,7 @@ public class WitherProcessor extends AbstractProcessor {
         ClassName targetClass = ClassName.get(classElement);
         PackageElement pkg = elements.getPackageOf(classElement);
         String packageName = pkg.getQualifiedName().toString();
-        String witherClassName = classElement.getSimpleName() + "Wither";
+        String witherClassName = classElement.getSimpleName() + annotation.suffix();
 
         TypeSpec.Builder witherBuilder = TypeSpec.classBuilder(witherClassName)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)

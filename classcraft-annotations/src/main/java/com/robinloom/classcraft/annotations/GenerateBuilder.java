@@ -24,4 +24,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.CONSTRUCTOR)
 @Retention(RetentionPolicy.SOURCE)
 public @interface GenerateBuilder {
+
+    /**
+     * Suffix appended to the class name for the generated builder class.
+     * E.g. suffix = "Assembler" generates UserAssembler instead of UserBuilder.
+     */
+    String suffix() default "Builder";
 }

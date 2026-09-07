@@ -82,7 +82,7 @@ public class DTOProcessor extends AbstractProcessor {
             .map(e -> (VariableElement) e)
             .toList();
 
-        String dtoClassName = classElement.getSimpleName() + "DTO";
+        String dtoClassName = classElement.getSimpleName() + annotation.suffix();
         PackageElement pkg = elements.getPackageOf(classElement);
         String packageName = pkg.getQualifiedName().toString();
 
