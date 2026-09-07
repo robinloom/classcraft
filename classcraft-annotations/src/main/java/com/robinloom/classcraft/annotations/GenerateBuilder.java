@@ -21,6 +21,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Generates a staged builder class for the annotated constructor.
+ * <p>
+ * The generated class ({@code <Class>Builder}) forces every non-{@link Nullable}
+ * parameter to be supplied — in the constructor's declared order — via a chain
+ * of single-method stage interfaces, before any {@link Nullable} parameter can
+ * be set and {@code build()} called.
+ *
+ * Only one constructor per class may be annotated, and it must not be private.
+ */
 @Target(ElementType.CONSTRUCTOR)
 @Retention(RetentionPolicy.SOURCE)
 public @interface GenerateBuilder {

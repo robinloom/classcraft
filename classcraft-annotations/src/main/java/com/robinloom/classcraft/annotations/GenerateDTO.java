@@ -5,6 +5,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 
+/**
+ * Generates a companion class ({@code <Class>DTO}) that copies the annotated
+ * class's fields into a plain class with getters (and setters, unless
+ * {@code mutable = false}), an all-args constructor, and optionally
+ * {@code equals()}/{@code hashCode()}/{@code toString()} and a no-arg
+ * constructor.
+ *
+ * Fields annotated with {@link Ignore} are skipped.
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface GenerateDTO {
