@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * parameter to be supplied — in the constructor's declared order — via a chain
  * of single-method stage interfaces, before any {@link Nullable} parameter can
  * be set and {@code build()} called.
- *
+ * <p>
  * Only one constructor per class may be annotated, and it must not be private.
  */
 @Target(ElementType.CONSTRUCTOR)

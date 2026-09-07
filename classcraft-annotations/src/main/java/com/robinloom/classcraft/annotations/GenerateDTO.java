@@ -11,7 +11,7 @@ import java.lang.annotation.ElementType;
  * {@code mutable = false}), an all-args constructor, and optionally
  * {@code equals()}/{@code hashCode()}/{@code toString()} and a no-arg
  * constructor.
- *
+ * <p>
  * Fields annotated with {@link Ignore} are skipped.
  */
 @Target(ElementType.TYPE)

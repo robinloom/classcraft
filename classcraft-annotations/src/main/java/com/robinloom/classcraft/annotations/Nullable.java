@@ -10,7 +10,7 @@ import java.lang.annotation.ElementType;
  * constructor parameter annotated {@code @Nullable} (and not a primitive) is
  * treated as optional — settable after all required parameters — rather than
  * forced into the required staged chain.
- *
+ * <p>
  * A {@code TYPE_USE} marker rather than a full nullability framework — for
  * interop, {@code org.jspecify.annotations.Nullable} and equivalents from
  * other common frameworks (JSR-305, JetBrains, Checker Framework) are
