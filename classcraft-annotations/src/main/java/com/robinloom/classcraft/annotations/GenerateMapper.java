@@ -17,7 +17,7 @@ import java.lang.annotation.ElementType;
 @Retention(RetentionPolicy.SOURCE)
 public @interface GenerateMapper {
     /**
-     * Fully qualified class name of target class (typically DTO).
+     * Fully qualified class name of the target class (typically DTO).
      * Example: "com.example.UserDTO"
      */
     String to();

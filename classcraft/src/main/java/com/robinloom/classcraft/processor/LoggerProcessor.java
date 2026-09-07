@@ -2,6 +2,7 @@ package com.robinloom.classcraft.processor;
 
 import com.robinloom.classcraft.annotations.GenerateLogger;
 import com.robinloom.classcraft.annotations.Ignore;
+import com.robinloom.classcraft.annotations.Sensitive;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -95,6 +96,9 @@ public class LoggerProcessor extends AbstractProcessor {
 
         Map<VariableElement, String> getterNames = new LinkedHashMap<>();
         for (VariableElement field : fields) {
+            if (field.getAnnotation(Sensitive.class) != null) {
+                continue; // masked fields are never read, no getter needed
+            }
             String getterName = findGetterName(classElement, field);
             if (getterName == null) {
                 String capitalized = capitalize(field.getSimpleName().toString());
@@ -117,10 +121,13 @@ public class LoggerProcessor extends AbstractProcessor {
         String loggerClassName = classElement.getSimpleName() + annotation.suffix();
         String varName = decapitalize(targetClass.simpleName());
 
-        // Shared getter-call placeholders/args, reused by both line() and tree()
-        String placeholders = fields.stream().map(f -> "$L.$L()").collect(Collectors.joining(", "));
+        // Shared getter-call placeholders/args (non-sensitive fields only), reused by line() and tree()
+        List<VariableElement> readableFields = fields.stream()
+            .filter(f -> f.getAnnotation(Sensitive.class) == null)
+            .toList();
+        String placeholders = readableFields.stream().map(f -> "$L.$L()").collect(Collectors.joining(", "));
         List<Object> getterCallArgs = new ArrayList<>();
-        for (VariableElement field : fields) {
+        for (VariableElement field : readableFields) {
             getterCallArgs.add(varName);
             getterCallArgs.add(getterNames.get(field));
         }
@@ -153,12 +160,11 @@ public class LoggerProcessor extends AbstractProcessor {
             if (i > 0) {
                 lineFormat.append(", ");
             }
-            boolean isString = field.asType().toString().equals("java.lang.String");
-            lineFormat.append(field.getSimpleName()).append(isString ? "=\"%s\"" : "=%s");
+            lineFormat.append(field.getSimpleName()).append("=").append(valueFormat(field));
         }
         lineFormat.append("}");
 
-        loggerBuilder.addMethod(buildFormatMethod("line", targetClass, varName, lineFormat.toString(), placeholders, getterCallArgs, fields.isEmpty()));
+        loggerBuilder.addMethod(buildFormatMethod("line", targetClass, varName, lineFormat.toString(), placeholders, getterCallArgs, readableFields.isEmpty()));
 
         // tree(T instance) -> JWeaver-style multi-line tree of the direct fields
         StringBuilder treeFormat = new StringBuilder(targetClass.simpleName());
@@ -166,12 +172,10 @@ public class LoggerProcessor extends AbstractProcessor {
             VariableElement field = fields.get(i);
             boolean isLast = i == fields.size() - 1;
             String connector = isLast ? "`-- " : "|-- ";
-            boolean isString = field.asType().toString().equals("java.lang.String");
-            String valueFormat = isString ? "\"%s\"" : "%s";
-            treeFormat.append("\n").append(connector).append(field.getSimpleName()).append("=").append(valueFormat);
+            treeFormat.append("\n").append(connector).append(field.getSimpleName()).append("=").append(valueFormat(field));
         }
 
-        loggerBuilder.addMethod(buildFormatMethod("tree", targetClass, varName, treeFormat.toString(), placeholders, getterCallArgs, fields.isEmpty()));
+        loggerBuilder.addMethod(buildFormatMethod("tree", targetClass, varName, treeFormat.toString(), placeholders, getterCallArgs, readableFields.isEmpty()));
 
         // line(String message, T instance, Consumer<String> consumer) -> stays on ONE line
         loggerBuilder.addMethod(MethodSpec.methodBuilder("line")
@@ -203,6 +207,21 @@ public class LoggerProcessor extends AbstractProcessor {
 
         JavaFile javaFile = JavaFile.builder(packageName, loggerBuilder.build()).build();
         javaFile.writeTo(filer);
+    }
+
+    /**
+     * The literal String.format fragment for a field's value: a "%s" placeholder
+     * (quoted for String fields) for normal fields, or the quoted, %-escaped mask
+     * literal — baked directly into the format string, no getter call — for
+     * @Sensitive fields.
+     */
+    private String valueFormat(VariableElement field) {
+        Sensitive sensitive = field.getAnnotation(Sensitive.class);
+        if (sensitive != null) {
+            return "\"" + sensitive.mask().replace("%", "%%") + "\"";
+        }
+        boolean isString = field.asType().toString().equals("java.lang.String");
+        return isString ? "\"%s\"" : "%s";
     }
 
     private MethodSpec buildFormatMethod(String methodName, ClassName targetClass, String varName,
