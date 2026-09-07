@@ -20,8 +20,19 @@ public @interface GenerateDTO {
 
     /**
      * Generate a no-arg constructor.
+     * <p>
+     * Ignored when mutable = false: final fields cannot be left
+     * unassigned, so only the all-args constructor is generated.
      */
     boolean generateNoArgConstructor() default true;
+
+    /**
+     * Whether the generated class has setters and non-final fields.
+     * Set to false for an immutable DTO: fields become final, no
+     * setters and no no-arg constructor are generated — only the
+     * all-args constructor and getters.
+     */
+    boolean mutable() default true;
 
     /**
      * Suffix appended to the class name for the generated DTO class.

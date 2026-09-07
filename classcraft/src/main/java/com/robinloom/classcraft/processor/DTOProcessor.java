@@ -92,16 +92,23 @@ public class DTOProcessor extends AbstractProcessor {
         TypeSpec.Builder dtoClassBuilder = TypeSpec.classBuilder(dtoClassName)
             .addModifiers(Modifier.PUBLIC);
 
-        // Add fields (private)
+        // Add fields (private, final when immutable)
         for (VariableElement field : fields) {
-            dtoClassBuilder.addField(
-                TypeName.get(field.asType()),
-                field.getSimpleName().toString(),
-                Modifier.PRIVATE);
+            if (annotation.mutable()) {
+                dtoClassBuilder.addField(
+                    TypeName.get(field.asType()),
+                    field.getSimpleName().toString(),
+                    Modifier.PRIVATE);
+            } else {
+                dtoClassBuilder.addField(
+                    TypeName.get(field.asType()),
+                    field.getSimpleName().toString(),
+                    Modifier.PRIVATE, Modifier.FINAL);
+            }
         }
 
-        // Add no-arg constructor if requested
-        if (annotation.generateNoArgConstructor()) {
+        // Add no-arg constructor if requested (final fields can't be left unassigned)
+        if (annotation.generateNoArgConstructor() && annotation.mutable()) {
             dtoClassBuilder.addMethod(MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .build());
@@ -127,15 +134,17 @@ public class DTOProcessor extends AbstractProcessor {
                 .build());
         }
 
-        // Add setters
-        for (VariableElement field : fields) {
-            String fieldName = field.getSimpleName().toString();
-            String setterName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-            dtoClassBuilder.addMethod(MethodSpec.methodBuilder(setterName)
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(TypeName.get(field.asType()), fieldName)
-                .addStatement("this.$L = $L", fieldName, fieldName)
-                .build());
+        // Add setters (mutable DTOs only)
+        if (annotation.mutable()) {
+            for (VariableElement field : fields) {
+                String fieldName = field.getSimpleName().toString();
+                String setterName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+                dtoClassBuilder.addMethod(MethodSpec.methodBuilder(setterName)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(TypeName.get(field.asType()), fieldName)
+                    .addStatement("this.$L = $L", fieldName, fieldName)
+                    .build());
+            }
         }
 
         // Add equals() if requested
