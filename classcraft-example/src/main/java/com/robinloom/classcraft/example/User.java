@@ -3,15 +3,18 @@ package com.robinloom.classcraft.example;
 import com.robinloom.classcraft.annotations.GenerateBuilder;
 import com.robinloom.classcraft.annotations.GenerateDTO;
 import com.robinloom.classcraft.annotations.GenerateMapper;
+import com.robinloom.classcraft.annotations.GenerateWither;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Domain Entity with business logic.
  * @GenerateDTO creates UserDTO with getters/setters/equals/hashCode/toString
  * @GenerateMapper creates UserMapper for Entity ↔ DTO conversion
+ * @GenerateWither creates UserWither with copy-with-one-field-changed methods
  */
 @GenerateDTO
 @GenerateMapper(to = "com.robinloom.classcraft.example.UserDTO")
+@GenerateWither
 public class User {
     private final String name;
     private final String email;

@@ -22,6 +22,13 @@ public class Example {
         User aliceRestored = UserMapper.toUser(aliceDTO);
         System.out.println("Entity again: " + aliceRestored);
 
+        System.out.println("\n=== @GenerateWither ===\n");
+
+        // Create a modified copy without touching the other fields
+        User aliceAtWork = UserWither.withEmail(alice, "alice@work.example.com");
+        System.out.println("Original: " + alice);
+        System.out.println("Copy:     " + aliceAtWork);
+
         System.out.println("\n=== Products (Builder + DTO) ===\n");
 
         Product laptop = ProductBuilder.builder()

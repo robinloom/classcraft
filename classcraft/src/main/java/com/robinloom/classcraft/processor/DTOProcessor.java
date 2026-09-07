@@ -1,7 +1,6 @@
 package com.robinloom.classcraft.processor;
 
 import com.robinloom.classcraft.annotations.GenerateDTO;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -48,13 +47,11 @@ public class DTOProcessor extends AbstractProcessor {
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(GenerateDTO.class);
 
         for (Element element : elements) {
-            if (!(element instanceof TypeElement)) {
+            if (!(element instanceof TypeElement classElement)) {
                 messager.printMessage(Diagnostic.Kind.ERROR,
                     "@GenerateDTO can only be applied to classes");
                 continue;
             }
-
-            TypeElement classElement = (TypeElement) element;
 
             // Only process classes, not interfaces/enums
             if (classElement.getKind() != ElementKind.CLASS) {
@@ -75,13 +72,17 @@ public class DTOProcessor extends AbstractProcessor {
 
     private void generateDTO(TypeElement classElement) throws IOException {
         GenerateDTO annotation = classElement.getAnnotation(GenerateDTO.class);
+
+        if (annotation == null) {
+            return;
+        }
+
         List<VariableElement> fields = classElement.getEnclosedElements().stream()
             .filter(e -> e.getKind() == ElementKind.FIELD)
             .map(e -> (VariableElement) e)
-            .collect(Collectors.toList());
+            .toList();
 
         String dtoClassName = classElement.getSimpleName() + "DTO";
-        ClassName targetClass = ClassName.get(classElement);
         PackageElement pkg = elements.getPackageOf(classElement);
         String packageName = pkg.getQualifiedName().toString();
 
@@ -170,7 +171,7 @@ public class DTOProcessor extends AbstractProcessor {
         if (annotation.generateToString()) {
             String formatStr = dtoClassName + "{" +
                 fields.stream()
-                    .map(f -> f.getSimpleName().toString() + "=%s")
+                    .map(f -> f.getSimpleName() + "=%s")
                     .collect(Collectors.joining(", ")) +
                 "}";
 
