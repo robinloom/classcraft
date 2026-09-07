@@ -8,10 +8,12 @@ import org.jspecify.annotations.Nullable;
  * @GenerateDTO creates UserDTO with getters/setters/equals/hashCode/toString
  * @GenerateMapper creates UserMapper for Entity ↔ DTO conversion
  * @GenerateWither creates UserWither with copy-with-one-field-changed methods
+ * @GenerateLogger creates UserLogger with structured, reflection-free logging methods
  */
 @GenerateDTO
 @GenerateMapper(to = "com.robinloom.classcraft.example.UserDTO")
 @GenerateWither
+@GenerateLogger
 public class User {
     private final String name;
     private final String email;

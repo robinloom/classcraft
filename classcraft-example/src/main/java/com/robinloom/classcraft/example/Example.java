@@ -29,6 +29,20 @@ public class Example {
         System.out.println("Original: " + alice);
         System.out.println("Copy:     " + aliceAtWork);
 
+        System.out.println("\n=== @GenerateLogger ===\n");
+
+        // Single-line, compact — safe for log pipelines that treat one line as one entry
+        System.out.println(UserLogger.line(alice));
+
+        // JWeaver-style multi-line tree — for console/debug output
+        System.out.println(UserLogger.tree(alice));
+
+        // Either rendering, delivered anywhere via Consumer<String>: SLF4J, println, a file, ...
+        UserLogger.tree("Suspicious update", aliceAtWork, System.out::println);
+
+        // SLF4J convenience sugar, built on line() (single-line, log-pipeline-safe)
+        UserLogger.info("User created", alice);
+
         System.out.println("\n=== Products (Builder + DTO) ===\n");
 
         Product laptop = ProductBuilder.builder()
