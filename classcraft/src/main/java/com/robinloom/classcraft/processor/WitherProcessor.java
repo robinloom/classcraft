@@ -21,10 +21,13 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -99,14 +102,18 @@ public class WitherProcessor extends AbstractProcessor {
             return;
         }
 
+        Map<String, String> getterNames = new LinkedHashMap<>();
         for (VariableElement field : fields) {
-            if (!hasGetter(classElement, field)) {
+            String getterName = findGetterName(classElement, field);
+            if (getterName == null) {
+                String capitalized = capitalize(field.getSimpleName().toString());
                 messager.printMessage(Diagnostic.Kind.ERROR,
-                    "@GenerateWither requires a public getter get" + capitalize(field.getSimpleName().toString()) +
-                        "() for field '" + field.getSimpleName() + "'",
+                    "@GenerateWither requires a public getter get" + capitalized +
+                        "() (or is" + capitalized + "() for boolean fields) for field '" + field.getSimpleName() + "'",
                     classElement);
                 return;
             }
+            getterNames.put(field.getSimpleName().toString(), getterName);
         }
 
         List<VariableElement> witherableFields = fields.stream()
@@ -149,7 +156,7 @@ public class WitherProcessor extends AbstractProcessor {
                 if (paramName.equals(fieldName)) {
                     args.append(fieldName);
                 } else {
-                    args.append("source.get").append(capitalize(paramName)).append("()");
+                    args.append("source.").append(getterNames.get(paramName)).append("()");
                 }
             }
 
@@ -195,14 +202,29 @@ public class WitherProcessor extends AbstractProcessor {
         return matches.size() == 1 ? matches.get(0) : null;
     }
 
-    private boolean hasGetter(TypeElement classElement, VariableElement field) {
-        String getterName = "get" + capitalize(field.getSimpleName().toString());
-        return classElement.getEnclosedElements().stream()
-            .filter(e -> e.getKind() == ElementKind.METHOD)
-            .map(e -> (ExecutableElement) e)
-            .anyMatch(m -> m.getSimpleName().toString().equals(getterName)
-                && m.getParameters().isEmpty()
-                && m.getModifiers().contains(Modifier.PUBLIC));
+    /**
+     * Resolves the getter to call for a field: prefers isX() for boolean fields
+     * when that method actually exists on the class, otherwise getX().
+     * Returns null if neither is found.
+     */
+    private String findGetterName(TypeElement classElement, VariableElement field) {
+        String capitalized = capitalize(field.getSimpleName().toString());
+        List<String> candidates = field.asType().getKind() == TypeKind.BOOLEAN
+            ? List.of("is" + capitalized, "get" + capitalized)
+            : List.of("get" + capitalized);
+
+        for (String candidate : candidates) {
+            boolean exists = classElement.getEnclosedElements().stream()
+                .filter(e -> e.getKind() == ElementKind.METHOD)
+                .map(e -> (ExecutableElement) e)
+                .anyMatch(m -> m.getSimpleName().toString().equals(candidate)
+                    && m.getParameters().isEmpty()
+                    && m.getModifiers().contains(Modifier.PUBLIC));
+            if (exists) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     private String capitalize(String str) {

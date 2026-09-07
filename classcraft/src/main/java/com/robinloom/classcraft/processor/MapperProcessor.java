@@ -19,6 +19,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import java.io.IOException;
@@ -95,6 +96,7 @@ public class MapperProcessor extends AbstractProcessor {
 
         // Try to detect if target class is mutable (has setters)
         boolean targetIsMutable = isMutableClass(targetFqn, sourceFields);
+        TypeElement targetElement = elements.getTypeElement(targetFqn);
 
         // Generate Mapper class with static methods
         TypeSpec.Builder mapperBuilder = TypeSpec.classBuilder(mapperClassName)
@@ -125,8 +127,8 @@ public class MapperProcessor extends AbstractProcessor {
             toTargetBuilder.addStatement("$T $L = new $T()", targetClass, targetVarName, targetClass);
             for (VariableElement field : sourceFields) {
                 String fieldName = field.getSimpleName().toString();
-                toTargetBuilder.addStatement("$L.set$L($L.get$L())",
-                    targetVarName, capitalize(fieldName), sourceVarName, capitalize(fieldName));
+                toTargetBuilder.addStatement("$L.set$L($L.$L())",
+                    targetVarName, capitalize(fieldName), sourceVarName, getterName(sourceClass, field));
             }
             toTargetBuilder.addStatement("return $L", targetVarName);
         } else {
@@ -134,7 +136,7 @@ public class MapperProcessor extends AbstractProcessor {
             StringBuilder targetArgs = new StringBuilder();
             for (int i = 0; i < sourceFields.size(); i++) {
                 if (i > 0) targetArgs.append(", ");
-                targetArgs.append(sourceVarName).append(".get").append(capitalize(sourceFields.get(i).getSimpleName().toString())).append("()");
+                targetArgs.append(sourceVarName).append(".").append(getterName(sourceClass, sourceFields.get(i))).append("()");
             }
             toTargetBuilder.addStatement("return new $T($L)", targetClass, targetArgs.toString());
         }
@@ -155,8 +157,8 @@ public class MapperProcessor extends AbstractProcessor {
             toSourceBuilder.addStatement("$T $L = new $T()", sourceClassName, sourceVarName, sourceClassName);
             for (VariableElement field : sourceFields) {
                 String fieldName = field.getSimpleName().toString();
-                toSourceBuilder.addStatement("$L.set$L($L.get$L())",
-                    sourceVarName, capitalize(fieldName), targetVarName, capitalize(fieldName));
+                toSourceBuilder.addStatement("$L.set$L($L.$L())",
+                    sourceVarName, capitalize(fieldName), targetVarName, getterName(targetElement, field));
             }
             toSourceBuilder.addStatement("return $L", sourceVarName);
         } else {
@@ -164,7 +166,7 @@ public class MapperProcessor extends AbstractProcessor {
             StringBuilder sourceArgs = new StringBuilder();
             for (int i = 0; i < sourceFields.size(); i++) {
                 if (i > 0) sourceArgs.append(", ");
-                sourceArgs.append(targetVarName).append(".get").append(capitalize(sourceFields.get(i).getSimpleName().toString())).append("()");
+                sourceArgs.append(targetVarName).append(".").append(getterName(targetElement, sourceFields.get(i))).append("()");
             }
             toSourceBuilder.addStatement("return new $T($L)", sourceClassName, sourceArgs.toString());
         }
@@ -216,6 +218,28 @@ public class MapperProcessor extends AbstractProcessor {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /**
+     * Resolves the getter name to call for a field: prefers isX() for boolean
+     * fields when that method actually exists on the class, otherwise getX().
+     */
+    private String getterName(TypeElement classElement, VariableElement field) {
+        String capitalized = capitalize(field.getSimpleName().toString());
+
+        if (classElement != null && field.asType().getKind() == TypeKind.BOOLEAN) {
+            String isGetter = "is" + capitalized;
+            boolean hasIsGetter = classElement.getEnclosedElements().stream()
+                .filter(e -> e.getKind() == javax.lang.model.element.ElementKind.METHOD)
+                .map(e -> (javax.lang.model.element.ExecutableElement) e)
+                .anyMatch(m -> m.getSimpleName().toString().equals(isGetter) && m.getParameters().isEmpty());
+
+            if (hasIsGetter) {
+                return isGetter;
+            }
+        }
+
+        return "get" + capitalized;
     }
 
     private String capitalize(String str) {
