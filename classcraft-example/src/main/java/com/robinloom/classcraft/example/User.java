@@ -1,9 +1,6 @@
 package com.robinloom.classcraft.example;
 
-import com.robinloom.classcraft.annotations.GenerateBuilder;
-import com.robinloom.classcraft.annotations.GenerateDTO;
-import com.robinloom.classcraft.annotations.GenerateMapper;
-import com.robinloom.classcraft.annotations.GenerateWither;
+import com.robinloom.classcraft.annotations.*;
 import org.jspecify.annotations.Nullable;
 
 /**
