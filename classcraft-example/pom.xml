@@ -11,7 +11,7 @@
 
     <artifactId>classcraft-example</artifactId>
     <name>ClassCraft - Example</name>
-    <description>Example usage of ClassCraft @GenerateBuilder annotation</description>
+    <description>Example usage of ClassCraft's annotations</description>
 
     <dependencies>
         <dependency>

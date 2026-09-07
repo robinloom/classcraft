@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2026 Robin Kösters
+ * mail[at]robinloom[dot]com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.robinloom.classcraft.processor;
 
 import com.robinloom.classcraft.annotations.GenerateLogger;
@@ -125,7 +141,7 @@ public class LoggerProcessor extends AbstractProcessor {
         List<VariableElement> readableFields = fields.stream()
             .filter(f -> f.getAnnotation(Sensitive.class) == null)
             .toList();
-        String placeholders = readableFields.stream().map(f -> "$L.$L()").collect(Collectors.joining(", "));
+        String placeholders = readableFields.stream().map(_ -> "$L.$L()").collect(Collectors.joining(", "));
         List<Object> getterCallArgs = new ArrayList<>();
         for (VariableElement field : readableFields) {
             getterCallArgs.add(varName);
@@ -134,15 +150,18 @@ public class LoggerProcessor extends AbstractProcessor {
 
         TypeSpec.Builder loggerBuilder = TypeSpec.classBuilder(loggerClassName)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addJavadoc("Auto-generated renderer/logger for $L.\n\n" +
-                    "line($L) is a single-line, compact rendering — safe for log\n" +
-                    "pipelines that treat one line as one entry. tree($L) is a\n" +
-                    "JWeaver-style multi-line tree — for console/debug output. Both\n" +
-                    "read fields through their getter, no toString(), no reflection.\n" +
-                    "The (message, $L, Consumer<String>) overloads hand either\n" +
-                    "rendering to any consumer (a logger method reference,\n" +
-                    "System.out::println, a file writer, ...). trace/debug/info/warn/error\n" +
-                    "are SLF4J convenience wrappers built on line().\n",
+            .addJavadoc("""
+                            Auto-generated renderer/logger for $L.
+                            
+                            line($L) is a single-line, compact rendering — safe for log
+                            pipelines that treat one line as one entry. tree($L) is a
+                            JWeaver-style multi-line tree — for console/debug output. Both
+                            read fields through their getter, no toString(), no reflection.
+                            The (message, $L, Consumer<String>) overloads hand either
+                            rendering to any consumer (a logger method reference,
+                            System.out::println, a file writer, ...). trace/debug/info/warn/error
+                            are SLF4J convenience wrappers built on line().
+                            """,
                 targetClass.simpleName(), targetClass.simpleName(), targetClass.simpleName(), targetClass.simpleName())
             .addField(FieldSpec.builder(slf4jLogger, "log", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .initializer("$T.getLogger($T.class)", slf4jLoggerFactory, targetClass)
