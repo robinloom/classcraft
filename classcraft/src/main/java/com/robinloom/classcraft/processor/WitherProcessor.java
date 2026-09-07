@@ -1,6 +1,7 @@
 package com.robinloom.classcraft.processor;
 
 import com.robinloom.classcraft.annotations.GenerateWither;
+import com.robinloom.classcraft.annotations.Ignore;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -108,6 +109,17 @@ public class WitherProcessor extends AbstractProcessor {
             }
         }
 
+        List<VariableElement> witherableFields = fields.stream()
+            .filter(f -> f.getAnnotation(Ignore.class) == null)
+            .toList();
+
+        if (witherableFields.isEmpty()) {
+            messager.printMessage(Diagnostic.Kind.ERROR,
+                "@GenerateWither: all fields are @Ignore'd, nothing to generate",
+                classElement);
+            return;
+        }
+
         ClassName targetClass = ClassName.get(classElement);
         PackageElement pkg = elements.getPackageOf(classElement);
         String packageName = pkg.getQualifiedName().toString();
@@ -127,7 +139,7 @@ public class WitherProcessor extends AbstractProcessor {
 
         List<? extends VariableElement> ctorParams = constructor.getParameters();
 
-        for (VariableElement field : fields) {
+        for (VariableElement field : witherableFields) {
             String fieldName = field.getSimpleName().toString();
 
             StringBuilder args = new StringBuilder();

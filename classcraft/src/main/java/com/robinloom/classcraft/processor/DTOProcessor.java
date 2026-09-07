@@ -1,6 +1,7 @@
 package com.robinloom.classcraft.processor;
 
 import com.robinloom.classcraft.annotations.GenerateDTO;
+import com.robinloom.classcraft.annotations.Ignore;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -79,6 +80,7 @@ public class DTOProcessor extends AbstractProcessor {
 
         List<VariableElement> fields = classElement.getEnclosedElements().stream()
             .filter(e -> e.getKind() == ElementKind.FIELD)
+            .filter(e -> e.getAnnotation(Ignore.class) == null)
             .map(e -> (VariableElement) e)
             .toList();
 

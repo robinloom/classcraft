@@ -1,6 +1,7 @@
 package com.robinloom.classcraft.processor;
 
 import com.robinloom.classcraft.annotations.GenerateMapper;
+import com.robinloom.classcraft.annotations.Ignore;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -88,6 +89,7 @@ public class MapperProcessor extends AbstractProcessor {
         // Get fields from source class
         List<VariableElement> sourceFields = sourceClass.getEnclosedElements().stream()
             .filter(e -> e.getKind() == javax.lang.model.element.ElementKind.FIELD)
+            .filter(e -> e.getAnnotation(Ignore.class) == null)
             .map(e -> (VariableElement) e)
             .collect(Collectors.toList());
 
